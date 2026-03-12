@@ -1,0 +1,109 @@
+# --- CONFIGURACIÓN BÁSICA ---
+set -g default-terminal "xterm-256color"
+set -ga terminal-overrides ",*256col*:Tc"
+set -ga terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
+
+set -s escape-time 0
+set -g display-time 1000
+set -g history-limit 50000
+set -g detach-on-destroy off
+set -g focus-events on
+setw -g monitor-activity on
+set -g visual-activity on
+setw -g aggressive-resize on
+set -g base-index 1
+setw -g pane-base-index 1
+set -g automatic-rename on
+set -g set-titles on
+set -g set-titles-string "#S #I:#P #W:#T"
+set -g mouse on
+setw -g mode-keys vi
+set-option -g status-position bottom
+set -g set-clipboard on
+
+# Desactivamos extended-keys para evitar caracteres extraños en el prompt
+set -s extended-keys off
+
+# --- COLORES ---
+set -g pane-border-style fg=blue
+set -g pane-active-border-style "bg=default fg=blue"
+setw -g message-style fg=white,bold,bg=black
+
+# --- PREFIJO ---
+set -g prefix C-a
+bind C-a send-prefix
+
+# --- PLUGINS (TPM) ---
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @plugin 'laktak/extrakto'
+set -g @plugin '2kabhishek/tmux2k'
+set -g @plugin '2kabhishek/tmux-tea'
+set -g @plugin '2kabhishek/tmux-tilit'
+
+# --- OPCIONES DE PLUGINS ---
+set -g @extrakto_fzf_layout 'reverse'
+set -g @extrakto_key 'f'
+set -g @extrakto_insert_key 'enter'
+set -g @extrakto_copy_key 'ctrl-y'
+set -g @continuum-restore 'on'
+set-hook -g client-detached 'run-shell ~/.tmux/plugins/tmux-resurrect/scripts/save.sh'
+
+set -g @tea-bind "t"
+set -g @tea-alt-bind "false"
+set -g @tea-default-command "nvim"
+
+set -g @tmux2k-left-plugins "session cwd"
+set -g @tmux2k-right-plugins "tdo git time"
+set -g @tmux2k-icons-only "false"
+set -g @tmux2k-theme 'catppuccin'
+
+set -g @tilit-navigator 'on'
+set -g @tilit-config "$HOME/.config/tmux/tmux.conf"
+
+# --- ATAJOS GENERALES (Bindings) ---
+unbind [
+unbind s
+unbind q
+unbind c
+unbind %
+unbind '"'
+
+# Modo Copia (vi style)
+bind v copy-mode
+bind -T copy-mode-vi v send -X begin-selection
+bind -T copy-mode-vi c send -X copy-pipe-and-cancel "xclip -sel clip"
+
+# Sesiones
+bind s command-prompt -p "Nueva sesión:" "new-session -s '%%'"
+bind d kill-session
+bind S command-prompt -I "#S" "rename-session '%%'"
+
+# Ventanas y Paneles
+bind w new-window
+bind C-q kill-window
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+bind c send-keys clear Enter
+bind q kill-pane
+
+# --- NUEVA NAVEGACIÓN SOLICITADA ---
+
+# Cambiar de ventana (Ctrl+a -> h / Ctrl+a -> l)
+bind h previous-window
+bind l next-window
+
+# Reordenar/Alternar posición de ventana (Ctrl+a -> H / Ctrl+a -> L)
+bind-key -n C-S-Left swap-window -t -1\; select-window -t -1
+bind-key -n C-S-Right swap-window -t +1\; select-window -t +1
+
+# Popup FZF (Mantenemos Ctrl+t directo por utilidad)
+bind -n C-t display-popup -E "fzf"
+
+# --- INSTALACIÓN AUTOMÁTICA DE TPM ---
+if "test ! -d ~/.tmux/plugins/tpm" \
+   "run 'git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins'"
+
+run '~/.tmux/plugins/tpm/tpm'
