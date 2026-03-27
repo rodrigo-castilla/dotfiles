@@ -3,6 +3,8 @@ set -g default-terminal "tmux-256color" # Mantiene el soporte completo de color
 set -ga terminal-overrides ",*256col*:Tc"
 set -ga terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
 set -s escape-time 10
+set -s extended-keys on
+set -as terminal-features 'xterm*:extkeys'
 
 set -g display-time 1000
 set -g history-limit 50000
@@ -83,13 +85,16 @@ bind z detach
 # Ventanas y Paneles
 bind w new-window
 bind C-q kill-window
+bind-key -n C-q kill-pane
 bind | split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
 bind c send-keys clear Enter
-bind q kill-pane
 
-# Crear panel vertical con Alt+Enter
-bind-key -n M-Enter split-window -h -c "#{pane_current_path}"
+# Crear panel dividido en VERTICAL (mitad izquierda y mitad derecha)
+bind-key -n S-Enter split-window -h -c "#{pane_current_path}"
+
+# Crear panel dividido en HORIZONTAL (mitad arriba y mitad abajo)
+bind-key -n M-Enter split-window -v -c "#{pane_current_path}"
 
 # Cambiar de ventana (Ctrl+a -> h / Ctrl+a -> l)
 bind h previous-window
