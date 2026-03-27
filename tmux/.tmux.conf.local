@@ -1,9 +1,9 @@
 # --- CONFIGURACIÓN BÁSICA ---
-set -g default-terminal "xterm-256color"
+set -g default-terminal "tmux-256color" # Mantiene el soporte completo de color
 set -ga terminal-overrides ",*256col*:Tc"
 set -ga terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
+set -s escape-time 10
 
-set -s escape-time 0
 set -g display-time 1000
 set -g history-limit 50000
 set -g detach-on-destroy off
@@ -15,19 +15,19 @@ set -g base-index 1
 setw -g pane-base-index 1
 set -g automatic-rename on
 set -g set-titles on
-set -g set-titles-string "#S #I:#P #W:#T"
+# Formato rescatado directamente de tu dump:
+set -g set-titles-string "#h ❐ #S ● #I #W" 
 set -g mouse on
 setw -g mode-keys vi
 set-option -g status-position bottom
 set -g set-clipboard on
 
-# Desactivamos extended-keys para evitar caracteres extraños en el prompt
-set -s extended-keys off
-
-# --- COLORES ---
+# --- COLORES Y ESTILO ---
 set -g pane-border-style fg=blue
 set -g pane-active-border-style "bg=default fg=blue"
-setw -g message-style fg=white,bold,bg=black
+# Colores rescatados del dump (coinciden con el tema Catppuccin)
+setw -g message-style "bg=#8aadf4,fg=#1e2030"
+setw -g message-command-style "fg=#ffff00,bg=#080808,bold"
 
 # --- PREFIJO ---
 set -g prefix C-a
@@ -41,7 +41,6 @@ set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @plugin 'laktak/extrakto'
 set -g @plugin '2kabhishek/tmux2k'
 set -g @plugin '2kabhishek/tmux-tea'
-set -g @plugin '2kabhishek/tmux-tilit'
 
 # --- OPCIONES DE PLUGINS ---
 set -g @extrakto_fzf_layout 'reverse'
@@ -60,9 +59,6 @@ set -g @tmux2k-right-plugins "tdo git time"
 set -g @tmux2k-icons-only "false"
 set -g @tmux2k-theme 'catppuccin'
 
-set -g @tilit-navigator 'on'
-set -g @tilit-config "$HOME/.config/tmux/tmux.conf"
-
 # --- ATAJOS GENERALES (Bindings) ---
 unbind [
 unbind s
@@ -70,6 +66,8 @@ unbind q
 unbind c
 unbind %
 unbind '"'
+unbind C-Enter
+bind-key -T copy-mode-vi MouseDown1Pane select-pane \; send-keys -X cancel
 
 # Modo Copia (vi style)
 bind v copy-mode
@@ -80,6 +78,7 @@ bind -T copy-mode-vi c send -X copy-pipe-and-cancel "xclip -sel clip"
 bind s command-prompt -p "Nueva sesión:" "new-session -s '%%'"
 bind d kill-session
 bind S command-prompt -I "#S" "rename-session '%%'"
+bind z detach
 
 # Ventanas y Paneles
 bind w new-window
@@ -89,21 +88,40 @@ bind - split-window -v -c "#{pane_current_path}"
 bind c send-keys clear Enter
 bind q kill-pane
 
-# --- NUEVA NAVEGACIÓN SOLICITADA ---
+# Crear panel vertical con Alt+Enter
+bind-key -n M-Enter split-window -h -c "#{pane_current_path}"
 
 # Cambiar de ventana (Ctrl+a -> h / Ctrl+a -> l)
 bind h previous-window
 bind l next-window
 
-# Reordenar/Alternar posición de ventana (Ctrl+a -> H / Ctrl+a -> L)
+# Reordenar/Alternar posición de ventana
 bind-key -n C-S-Left swap-window -t -1\; select-window -t -1
 bind-key -n C-S-Right swap-window -t +1\; select-window -t +1
 
-# Popup FZF (Mantenemos Ctrl+t directo por utilidad)
+# Popup FZF
 bind -n C-t display-popup -E "fzf"
+
+# --- VIM-TMUX-NAVIGATOR (CONFIGURACIÓN MANUAL PARA ALT) ---
+# Este script verifica si el programa actual en el panel es vim/nvim.
+is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
+    | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'"
+
+# Si es nvim, envía la pulsación. Si no, cambia de panel en Tmux.
+bind-key -n 'M-h' if-shell "$is_vim" 'send-keys M-h'  'select-pane -L'
+bind-key -n 'M-j' if-shell "$is_vim" 'send-keys M-j'  'select-pane -D'
+bind-key -n 'M-k' if-shell "$is_vim" 'send-keys M-k'  'select-pane -U'
+bind-key -n 'M-l' if-shell "$is_vim" 'send-keys M-l'  'select-pane -R'
+
+# Para que las teclas funcionen también en modo copia de Tmux:
+bind-key -T copy-mode-vi 'M-h' select-pane -L
+bind-key -T copy-mode-vi 'M-j' select-pane -D
+bind-key -T copy-mode-vi 'M-k' select-pane -U
+bind-key -T copy-mode-vi 'M-l' select-pane -R
 
 # --- INSTALACIÓN AUTOMÁTICA DE TPM ---
 if "test ! -d ~/.tmux/plugins/tpm" \
    "run 'git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins'"
 
+# Inicializa el gestor de plugins (debe mantenerse siempre al final)
 run '~/.tmux/plugins/tpm/tpm'

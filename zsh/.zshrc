@@ -20,6 +20,10 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 export PATH=$JAVA_HOME/bin:$PATH
+# Gurobi 9.5 Local
+export GUROBI_HOME="/home/rotrex/gurobi950/linux64/"
+export PATH="${GUROBI_HOME}/bin:${PATH}"
+export LD_LIBRARY_PATH="${GUROBI_HOME}/lib:${LD_LIBRARY_PATH}"
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in $ZSH/themes/
@@ -113,8 +117,8 @@ export EDITOR="nvim"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 #
 # ============ ALIASES ============
-alias aclab="cd /home/rotrex/Obsidian/General/US/2ºSoftware/2ºCuatri/src/AC"
-alias cuatri="cd /home/rotrex/Obsidian/General/US/2ºSoftware/2ºCuatri"
+alias aclab="cd /home/rotrex/obsidian/General/US/2ºSoftware/2ºCuatri/src/AC"
+alias cuatri="cd /home/rotrex/obsidian/General/US/2ºSoftware/2ºCuatri"
 alias znvim="nvim /home/$USER/.zshrc"
 alias tnvim="nvim /home/$USER/.tmux.conf.local"
 alias tsource="tmux source-file /home/$USER/.tmux.conf"
@@ -126,15 +130,17 @@ alias lsn="/usr/bin/ls"
 alias ll="/usr/bin/lsd -l"
 alias la="/usr/bin/lsd -a"
 alias lla="/usr/bin/lsd -la"
-alias cat="/usr/bin/batcat"
+alias cat="/usr/bin/bat"
 alias catn="/usr/bin/cat"
-alias rars="java.exe -jar 'C:/Users/rodri/Desktop/Obsidian/General/US/2ºSoftware/2ºCuatri/src/AC/practica1/rars1_6.jar' &"
+alias rars="java.exe -jar 'C:/Users/rodri/Desktop/obsidian/General/US/2ºSoftware/2ºCuatri/src/AC/practica1/rars1_6.jar' &"
 alias glazeconf="cd /mnt/c/Users/rodri/.glzr/glazewm"
 alias glaze='cmd.exe /c start "" "C:\Program Files\glzr.io\GlazeWM\glazewm.exe" && clear'
 alias upinstall="sudo apt update && sudo apt install"
 alias install="sudo apt install"
 alias ia="ollama run deepseek-r1:8b"
 alias lg="lazygit"
+alias lg1="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all"
+alias wsource="killall waybar && waybar &"
 
 # ============ FUNCTIONS ============
 function enviarBG() {
@@ -224,7 +230,7 @@ catcp() {
         echo "Uso: catcp <archivo>"
         return 1
     fi
-    xclip -selection clipboard -in "$1"
+    catn "$1" | xclip -sel clip
 }
 
 # ============ WIDGETS ==============
@@ -248,8 +254,9 @@ DISABLE_MAGIC_FUNCTIONS="true"
 unset zle_bracketed_paste
 
 # Integración de fzf instalada por apt
-source /usr/share/doc/fzf/examples/key-bindings.zsh
-source /usr/share/doc/fzf/examples/completion.zsh
+# source /usr/share/doc/fzf/examples/key-bindings.zsh
+# source /usr/share/doc/fzf/examples/completion.zsh
+source <(fzf --zsh) 
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -257,9 +264,9 @@ source /usr/share/doc/fzf/examples/completion.zsh
 eval "$(zoxide init zsh)"
 
 # Despertar a Ollama en segundo plano automáticamente si está dormido
-if ! pgrep -x "ollama" > /dev/null; then
-  nohup ollama serve >/dev/null 2>&1 &
-fi
+# if ! pgrep -x "ollama" > /dev/null; then
+#   nohup ollama serve >/dev/null 2>&1 &
+# fi
 
 # ============ CURSOR FIX ============
 # Forzar el cursor de doble T (I-beam) parpadeante en la consola
