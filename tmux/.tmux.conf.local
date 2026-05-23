@@ -1,8 +1,8 @@
 # --- CONFIGURACIÓN BÁSICA ---
-set -g default-terminal "tmux-256color" # Mantiene el soporte completo de color
+set -g default-terminal "tmux-256color"
 set -ga terminal-overrides ",*256col*:Tc"
 set -ga terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
-set -s escape-time 10
+set -s escape-time 0
 set -s extended-keys on
 set -as terminal-features 'xterm*:extkeys'
 
@@ -17,8 +17,7 @@ set -g base-index 1
 setw -g pane-base-index 1
 set -g automatic-rename on
 set -g set-titles on
-# Formato rescatado directamente de tu dump:
-set -g set-titles-string "#h ❐ #S ● #I #W" 
+set -g set-titles-string "#h ❐ #S ● #I #W"
 set -g mouse on
 setw -g mode-keys vi
 set-option -g status-position bottom
@@ -27,7 +26,6 @@ set -g set-clipboard on
 # --- COLORES Y ESTILO ---
 set -g pane-border-style fg=blue
 set -g pane-active-border-style "bg=default fg=blue"
-# Colores rescatados del dump (coinciden con el tema Catppuccin)
 setw -g message-style "bg=#8aadf4,fg=#1e2030"
 setw -g message-command-style "fg=#ffff00,bg=#080808,bold"
 
@@ -49,7 +47,10 @@ set -g @extrakto_fzf_layout 'reverse'
 set -g @extrakto_key 'f'
 set -g @extrakto_insert_key 'enter'
 set -g @extrakto_copy_key 'ctrl-y'
+
 set -g @continuum-restore 'on'
+set -g @continuum-boot 'on'
+set -g @continuum-boot-systemd 'on'
 set-hook -g client-detached 'run-shell ~/.tmux/plugins/tmux-resurrect/scripts/save.sh'
 
 set -g @tea-bind "t"
@@ -90,13 +91,13 @@ bind | split-window -h -c "#{pane_current_path}"
 bind - split-window -v -c "#{pane_current_path}"
 bind c send-keys clear Enter
 
-# Crear panel dividido en VERTICAL (mitad izquierda y mitad derecha)
+# Crear panel dividido en VERTICAL
 bind-key -n S-Enter split-window -h -c "#{pane_current_path}"
 
-# Crear panel dividido en HORIZONTAL (mitad arriba y mitad abajo)
+# Crear panel dividido en HORIZONTAL
 bind-key -n M-Enter split-window -v -c "#{pane_current_path}"
 
-# Cambiar de ventana (Ctrl+a -> h / Ctrl+a -> l)
+# Cambiar de ventana
 bind h previous-window
 bind l next-window
 
@@ -107,18 +108,15 @@ bind-key -n C-S-Right swap-window -t +1\; select-window -t +1
 # Popup FZF
 bind -n C-t display-popup -E "fzf"
 
-# --- VIM-TMUX-NAVIGATOR (CONFIGURACIÓN MANUAL PARA ALT) ---
-# Este script verifica si el programa actual en el panel es vim/nvim.
-is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
-    | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'"
+# --- VIM-TMUX-NAVIGATOR ---
+# Script corregido sin espacios inválidos
+is_vim="ps -o state= -o comm= -t '#{pane_tty}' | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?)(diff)?$'"
 
-# Si es nvim, envía la pulsación. Si no, cambia de panel en Tmux.
-bind-key -n 'M-h' if-shell "$is_vim" 'send-keys M-h'  'select-pane -L'
-bind-key -n 'M-j' if-shell "$is_vim" 'send-keys M-j'  'select-pane -D'
-bind-key -n 'M-k' if-shell "$is_vim" 'send-keys M-k'  'select-pane -U'
-bind-key -n 'M-l' if-shell "$is_vim" 'send-keys M-l'  'select-pane -R'
+bind-key -n 'M-h' if-shell "$is_vim" 'send-keys M-h' 'select-pane -L'
+bind-key -n 'M-j' if-shell "$is_vim" 'send-keys M-j' 'select-pane -D'
+bind-key -n 'M-k' if-shell "$is_vim" 'send-keys M-k' 'select-pane -U'
+bind-key -n 'M-l' if-shell "$is_vim" 'send-keys M-l' 'select-pane -R'
 
-# Para que las teclas funcionen también en modo copia de Tmux:
 bind-key -T copy-mode-vi 'M-h' select-pane -L
 bind-key -T copy-mode-vi 'M-j' select-pane -D
 bind-key -T copy-mode-vi 'M-k' select-pane -U
@@ -128,5 +126,5 @@ bind-key -T copy-mode-vi 'M-l' select-pane -R
 if "test ! -d ~/.tmux/plugins/tpm" \
    "run 'git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins'"
 
-# Inicializa el gestor de plugins (debe mantenerse siempre al final)
+# Inicializa el gestor de plugins
 run '~/.tmux/plugins/tpm/tpm'

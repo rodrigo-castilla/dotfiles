@@ -6,6 +6,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
+export PATH="$HOME/.local/bin:$PATH"
+export JAVA_HOME=/usr/lib/jvm/default
+export PATH=$JAVA_HOME/bin:$PATH
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
@@ -18,12 +21,14 @@ export ZSH="$HOME/.oh-my-zsh"
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="powerlevel10k/powerlevel10k"
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-export PATH=$JAVA_HOME/bin:$PATH
+# export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+# export PATH=$JAVA_HOME/bin:$PATH
 # Gurobi 9.5 Local
 export GUROBI_HOME="/home/rotrex/gurobi950/linux64/"
 export PATH="${GUROBI_HOME}/bin:${PATH}"
 export LD_LIBRARY_PATH="${GUROBI_HOME}/lib:${LD_LIBRARY_PATH}"
+export QT_QPA_PLATFORM="wayland;xcb"
+export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in $ZSH/themes/
@@ -83,7 +88,6 @@ export LD_LIBRARY_PATH="${GUROBI_HOME}/lib:${LD_LIBRARY_PATH}"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting dirhistory)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -132,15 +136,20 @@ alias la="/usr/bin/lsd -a"
 alias lla="/usr/bin/lsd -la"
 alias cat="/usr/bin/bat"
 alias catn="/usr/bin/cat"
-alias rars="java.exe -jar 'C:/Users/rodri/Desktop/obsidian/General/US/2ºSoftware/2ºCuatri/src/AC/practica1/rars1_6.jar' &"
-alias glazeconf="cd /mnt/c/Users/rodri/.glzr/glazewm"
-alias glaze='cmd.exe /c start "" "C:\Program Files\glzr.io\GlazeWM\glazewm.exe" && clear'
-alias upinstall="sudo apt update && sudo apt install"
-alias install="sudo apt install"
+#alias rars="java.exe -jar 'C:/Users/rodri/Desktop/obsidian/General/US/2ºSoftware/2ºCuatri/src/AC/practica1/rars1_6.jar' &"
+alias rars="java -Dsun.java2d.uiScale=1.5 -jar /home/rotrex/obsidian/General/US/2ºSoftware/2ºCuatri/src/AC/rars1_6.jar &"
+#alias glazeconf="cd /mnt/c/Users/rodri/.glzr/glazewm"
+#alias glaze='cmd.exe /c start "" "C:\Program Files\glzr.io\GlazeWM\glazewm.exe" && clear'
+alias upinstall="sudo pacman -Syu"
+alias install="sudo pacman -S"
 alias ia="ollama run deepseek-r1:8b"
 alias lg="lazygit"
 alias lg1="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all"
 alias wsource="killall waybar && waybar &"
+alias exd-edit="excalidraw-edit"
+alias o="xdg-open"
+alias q="qutebrowser"
+alias t="tmux new-session -A -s home"
 
 # ============ FUNCTIONS ============
 function enviarBG() {
@@ -202,28 +211,28 @@ function hereNvim() {
   #zle reset-prompt
 # }
 
-fzf-absolute-path-widget() {
-  local es_path="/mnt/c/Program Files/Everything/es.exe"
+# fzf-absolute-path-widget() {
+#  local es_path="/mnt/c/Program Files/Everything/es.exe"
 
-  local selected_win=$("$es_path" | fzf \
-    --header="Everything Engine (Modo CLI puro)" \
-    --height=40% \
-    --layout=reverse \
-    --info=inline)
+#  local selected_win=$("$es_path" | fzf \
+#    --header="Everything Engine (Modo CLI puro)" \
+#    --height=40% \
+#    --layout=reverse \
+#    --info=inline)
 
-  if [ -n "$selected_win" ]; then
+#  if [ -n "$selected_win" ]; then
     # 1. Quitamos el retorno de carro (CR) de Windows usando Zsh puro, sin 'echo'
-    local clean_win_path="${selected_win%$'\r'}"
+#    local clean_win_path="${selected_win%$'\r'}"
     
     # 2. Convertimos la ruta limpia al formato de Linux (/mnt/c/...)
-    local selected_linux=$(wslpath -u "$clean_win_path")
+#    local selected_linux=$(wslpath -u "$clean_win_path")
 
     # 3. ${(q)selected_linux} es un truco de Zsh que le pone comillas o barras 
     # a los espacios automáticamente para que rutas como "Program Files" no fallen.
-    LBUFFER="${LBUFFER}${(q)selected_linux} "
-  fi
-  zle reset-prompt
-}
+#    LBUFFER="${LBUFFER}${(q)selected_linux} "
+#  fi
+#  zle reset-prompt
+#}
 
 catcp() {
     if [[ -z "$1" ]]; then
@@ -233,22 +242,31 @@ catcp() {
     catn "$1" | xclip -sel clip
 }
 
+bind_zoxide ()
+{
+    LBUFFER="zi "
+    zle accept-line
+}
+
 # ============ WIDGETS ==============
 zle -N enviarBG
 zle -N traerFG
 zle -N devNvim
 zle -N hereNvim
 zle -N fzf-absolute-path-widget 
+zle -N bind_zoxide
 
 # ============ BINDS =============
-bindkey '^Z' enviarBG   # Ctrl+Z -> bg limpio real
-bindkey '^<' traerFG    # Ctrl+< -> fg limpio real
 bindkey '^[d' devNvim   # Alt+d -> development nvim
 bindkey -s '^[n' 'nvim^M' # Alt+n -> nvim current directory
-bindkey '^X^F' fzf-absolute-path-widget
+# bindkey '^X^F' fzf-absolute-path-widget
+bindkey -r '^Z'
+bindkey '^Z' bind_zoxide
 
 # ============ MISC ==============
 setopt MONITOR
+setopt autocd
+CDPATH=.:$HOME
 setopt NO_NOTIFY
 DISABLE_MAGIC_FUNCTIONS="true"
 unset zle_bracketed_paste
@@ -256,7 +274,21 @@ unset zle_bracketed_paste
 # Integración de fzf instalada por apt
 # source /usr/share/doc/fzf/examples/key-bindings.zsh
 # source /usr/share/doc/fzf/examples/completion.zsh
-source <(fzf --zsh) 
+eval "$(fzf --zsh)"
+
+# --- CONFIGURACIÓN DE FZF PARA LINUX (ARCH) ---
+
+# Esto arregla Ctrl+T: Busca archivos rápido saltándose lo innecesario
+export FZF_CTRL_T_COMMAND="fd --type f --hidden --exclude .git --exclude .cache --exclude 'node_modules' --exclude '__pycache__'"
+export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :50 {}'"
+
+# Esto arregla Alt+C: Busca directorios rápido para saltar a ellos
+export FZF_ALT_C_COMMAND="fd --type d --hidden --exclude .git --exclude .cache --exclude 'node_modules' . $HOME"
+# export FZF_ALT_C_COMMAND="fd --type d --hidden --exclude .git --exclude .cache --exclude 'node_modules'"
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --exclude .git"
+
+# Si quieres que Ctrl+T ponga la ruta en tu línea de comandos:
+bindkey '^T' fzf-file-widget
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -274,3 +306,11 @@ function forzar_cursor_doblet() {
   printf '\e[5 q'
 }
 precmd_functions+=(forzar_cursor_doblet)
+
+# Crear archivos de Excalidraw vacíos y válidos
+exd-touch() {
+    echo '{"type":"excalidraw","version":2,"source":"https://excalidraw.com","elements":[],"appState":{}}' > "$1"
+}
+
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
