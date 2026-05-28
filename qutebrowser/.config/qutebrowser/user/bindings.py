@@ -1,0 +1,25 @@
+def load(config, c):
+    config.bind('J', 'tab-next')
+    config.bind('K', 'tab-prev')
+    config.bind('<Ctrl-r>', 'config-source')
+    config.bind('gm', 'open https://gemini.google.com/app?hl=es-ES')
+    config.bind('m', 'hint links spawn mpv {hint-url}')
+    config.unbind('M')
+    config.bind('M', 'message-info "Loading..." ;; spawn --detach mpv {url}')
+    config.bind('<Ctrl-h>', 'cmd-set-text -s :undo')
+    config.unbind('b')
+    config.unbind('q')
+    config.bind('ba', 'cmd-set-text -s :bookmark-add {url} ')
+    config.bind('bl', 'cmd-set-text -s :bookmark-load')
+    config.bind('bd', 'cmd-set-text -s :bookmark-del ')
+    config.bind('ql', 'cmd-set-text -s :quickmark-load')
+    config.unbind('gb')
+    config.bind('al', 'spawn --userscript qute-pass')
+    config.bind('au', 'spawn --userscript qute-pass --otp-only')
+    config.bind('gh', 'open https://github.com/')
+# Mapea Ctrl+C para salir al modo normal desde cualquier modo
+    config.bind('<Ctrl-c>', 'mode-leave', mode='insert')
+    config.bind('<Ctrl-c>', 'mode-leave', mode='prompt')
+    config.bind('<Ctrl-c>', 'mode-leave', mode='command')
+
+    c.tabs.position = 'left'
